@@ -1,6 +1,11 @@
 import omit from "lodash.omit";
 import { Node } from "./types/graph";
-import { NodeType, NodeRootQuery } from "./graph";
+import {
+  NodeType,
+  NodeRootQuery,
+  NodeResolver,
+  NodeResolverOptions,
+} from "./graph";
 import { Resolver } from "./types/resolver";
 import { Adapter } from "./types/adapter";
 import { ModelAny } from "./model/model";
@@ -19,6 +24,7 @@ type Options = {
   resolvers?: Partial<Record<Node, Record<string, any>>>;
   wrapper?: (resolver: Resolver) => Resolver;
   wrapperExcludes?: Partial<Record<Exclude<Node, "root">, string[]>>;
+  getNodeInfoFn: NodeResolverOptions["getNodeInfoFn"];
 };
 
 export class Autograph {
@@ -33,7 +39,14 @@ export class Autograph {
       resolvers,
       wrapper,
       wrapperExcludes,
+      getNodeInfoFn,
     } = options;
+
+    const node = NodeResolver({
+      models,
+      adapter,
+      getNodeInfoFn,
+    });
 
     const modelsTypeDefs = models.map((model) => buildTypeDefs(model));
     const modelsResolvers = models.map((model) =>
@@ -71,6 +84,7 @@ export class Autograph {
     this.resolvers = {
       ...rootResolvers,
       Query: {
+        node,
         ...queryResolvers,
         ...(wrapper
           ? wrapResolvers(

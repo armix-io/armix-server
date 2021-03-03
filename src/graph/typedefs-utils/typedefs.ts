@@ -1,5 +1,4 @@
 import { Type } from "../../types/type";
-import { asScalar } from "../../types/type-utils";
 import { Node } from "../../types/graph";
 import { ModelAny } from "../../model/model";
 import { Field } from "../../model/field";

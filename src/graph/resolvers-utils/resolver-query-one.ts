@@ -6,11 +6,6 @@ import { useGetOne } from "./use-get-one";
 type Args = { id: string };
 
 export function getQueryOneResolver(model: ModelAny, adapter: Adapter) {
-  const { queryOne } = model;
-  if (!queryOne) {
-    return {};
-  }
-
   const getOne = useGetOne(model, adapter);
 
   const resolver = async (
@@ -21,7 +16,5 @@ export function getQueryOneResolver(model: ModelAny, adapter: Adapter) {
     return getOne(id, context, info);
   };
 
-  return {
-    [queryOne]: resolver,
-  };
+  return resolver;
 }

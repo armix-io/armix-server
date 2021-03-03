@@ -316,5 +316,4 @@ export class Model<
   }
 }
 
-// @ts-ignore
-export type ModelAny = Model<keyof Sources, any>;
+export type ModelAny = Model<string, any>;
