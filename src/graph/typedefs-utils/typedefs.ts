@@ -146,7 +146,7 @@ export function getMutationUpdateResolver({ name, mutationUpdate }: ModelAny) {
 export function getMutationDeleteResolver({ name, mutationDelete }: ModelAny) {
   if (!mutationDelete) return;
   return `
-    ${name}Delete(
+    ${mutationDelete}(
       ids: [ID!]!
     ): [ID!]!
   `;
