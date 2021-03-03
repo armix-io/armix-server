@@ -1,9 +1,14 @@
-import { Type, Scalar } from "../types/type";
-import { AsScalar, asScalar } from "../types/type-utils";
-import { Node } from "../types/graph";
-import { Sources } from "../types/sources";
-import { ModelHooks } from "../types/hooks";
-import { Resolver } from "../types/resolver";
+import {
+  Type,
+  Scalar,
+  Types,
+  asScalar,
+  AsScalar,
+  Node,
+  Sources,
+  Resolver,
+  ModelHooks,
+} from "../types";
 import { Field, GetResolver } from "./field";
 import { Options, OptionsCallback } from "./field-options";
 import { Filter, FilterResolver } from "./filter";
@@ -49,29 +54,29 @@ export class Model<
 
   constructor(
     name: Name,
-    options?: Partial<
-      {
-        queryOne?: string | boolean;
-        queryMany?: string | boolean;
-        mutationCreate?: string | boolean;
-        mutationUpdate?: string | boolean;
-        mutationDelete?: string | boolean;
-      } & Pick<Model<any, any>, "limitDefault" | "limitMax" | "defaultDocs"> & {
-          onQuery?: ModelHooks<Source>["onQuery"];
-          onQueryOne?: ModelHooks<Source>["onQueryOne"];
-          onQueryMany?: ModelHooks<Source>["onQueryMany"];
-          onCreate?: ModelHooks<Source>["onCreate"];
-          onCreateAfterData?: ModelHooks<Source>["onCreateAfterData"];
-          onUpdate?: ModelHooks<Source>["onUpdate"];
-          onUpdateAfterData?: ModelHooks<Source>["onUpdateAfterData"];
-          onDelete?: ModelHooks<Source>["onDelete"];
-          onDeleteAfterData?: ModelHooks<Source>["onDeleteAfterData"];
-          onMutation?: ModelHooks<Source>["onMutation"];
-          onMutationAfterData?: ModelHooks<Source>["onMutationAfterData"];
-          onFieldGet?: ModelHooks<Source>["onGet"];
-          onFieldSet?: ModelHooks<Source>["onSet"];
-          onFieldUse?: ModelHooks<Source>["onUse"];
-        }
+    options?: {
+      queryOne?: string | boolean;
+      queryMany?: string | boolean;
+      mutationCreate?: string | boolean;
+      mutationUpdate?: string | boolean;
+      mutationDelete?: string | boolean;
+      onQuery?: ModelHooks<Source>["onQuery"];
+      onQueryOne?: ModelHooks<Source>["onQueryOne"];
+      onQueryMany?: ModelHooks<Source>["onQueryMany"];
+      onCreate?: ModelHooks<Source>["onCreate"];
+      onCreateAfterData?: ModelHooks<Source>["onCreateAfterData"];
+      onUpdate?: ModelHooks<Source>["onUpdate"];
+      onUpdateAfterData?: ModelHooks<Source>["onUpdateAfterData"];
+      onDelete?: ModelHooks<Source>["onDelete"];
+      onDeleteAfterData?: ModelHooks<Source>["onDeleteAfterData"];
+      onMutation?: ModelHooks<Source>["onMutation"];
+      onMutationAfterData?: ModelHooks<Source>["onMutationAfterData"];
+      onFieldGet?: ModelHooks<Source>["onGet"];
+      onFieldSet?: ModelHooks<Source>["onSet"];
+      onFieldUse?: ModelHooks<Source>["onUse"];
+      defaultId?: boolean;
+    } & Partial<
+      Pick<Model<any, any>, "limitDefault" | "limitMax" | "defaultDocs">
     >
   ) {
     this.name = name;
@@ -90,6 +95,7 @@ export class Model<
       limitDefault = 20,
       limitMax = 50,
       defaultDocs = true,
+      defaultId = true,
       onQuery,
       onQueryOne,
       onQueryMany,
@@ -135,6 +141,10 @@ export class Model<
     this.limitDefault = limitDefault;
     this.limitMax = limitMax;
     this.defaultDocs = defaultDocs;
+
+    if (defaultId) {
+      this.field("id", Types.ID);
+    }
   }
 
   field<T extends Type | { get: Type; set: Scalar }>(
