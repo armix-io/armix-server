@@ -1,6 +1,6 @@
 import omit from "lodash.omit";
 import { Node } from "./types/graph";
-import { Node as NodeType } from "./graph";
+import { NodeType, NodeRootQuery } from "./graph";
 import { Resolver } from "./types/resolver";
 import { Adapter } from "./types/adapter";
 import { ModelAny } from "./model/model";
@@ -45,6 +45,7 @@ export class Autograph {
       ${typeDefs?.root || ""}
       ${mergeTypeDefs(modelsTypeDefs)}
       type Query {
+        ${NodeRootQuery}
         ${typeDefs?.query || ""}
         ${mergeTypeDefs(modelsTypeDefs, "query")}
       }

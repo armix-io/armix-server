@@ -114,13 +114,6 @@ export function getRootOrderEnum({ name, fields, queryMany }: ModelAny) {
   `;
 }
 
-export function getQueryOneResolver({ name, queryOne }: ModelAny) {
-  if (!queryOne) return;
-  return `
-    ${queryOne}(id: ID!): ${name}!
-  `;
-}
-
 export function getQueryManyResolver({ name, queryMany }: ModelAny) {
   if (!queryMany) return;
   return `

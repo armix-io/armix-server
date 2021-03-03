@@ -7,7 +7,6 @@ import {
   getRootUpdateInput,
   getRootFiltersInput,
   getRootOrderEnum,
-  getQueryOneResolver,
   getQueryManyResolver,
   getMutationCreateResolver,
   getMutationUpdateResolver,
@@ -35,8 +34,6 @@ export function buildTypeDefs(model: ModelAny): Graph["typeDefs"] {
     .join("\n");
 
   const query = [
-    docs.queryOne,
-    getQueryOneResolver(model),
     docs.queryMany,
     getQueryManyResolver(model),
     getOtherTypeDefs(model, "query"),
