@@ -29,7 +29,7 @@ type Options = {
 
 export class Autograph {
   typeDefs: string;
-  resolvers: Record<"Query" | "Mutation", Record<string, Resolver>>;
+  resolvers: Record<"Node" | "Query" | "Mutation", Record<string, Resolver>>;
 
   constructor(options: Options) {
     const {
@@ -83,6 +83,11 @@ export class Autograph {
 
     this.resolvers = {
       ...rootResolvers,
+      Node: {
+        __resolveType() {
+          return null;
+        },
+      },
       Query: {
         node,
         ...queryResolvers,

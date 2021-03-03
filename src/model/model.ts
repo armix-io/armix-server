@@ -43,7 +43,6 @@ export class Model<
   readonly typeDefs: Record<Node, string[]>;
   readonly resolvers: Record<Node, Resolver[]>;
 
-  readonly queryOne: string | undefined;
   readonly queryMany: string | undefined;
   readonly mutationCreate: string | undefined;
   readonly mutationUpdate: string | undefined;
@@ -55,7 +54,6 @@ export class Model<
   constructor(
     name: Name,
     options?: {
-      queryOne?: string | boolean;
       queryMany?: string | boolean;
       mutationCreate?: string | boolean;
       mutationUpdate?: string | boolean;
@@ -87,7 +85,6 @@ export class Model<
     this.resolvers = { root: [], query: [], mutation: [] };
 
     const {
-      queryOne = true,
       queryMany = true,
       mutationCreate = true,
       mutationUpdate = true,
@@ -129,21 +126,20 @@ export class Model<
       onUse,
     };
 
-    this.queryOne = queryOne === true ? `${name}` : queryOne || undefined;
     this.queryMany =
-      queryMany === true ? `${name}Many` : queryMany || undefined;
+      queryMany === true ? `many${name}` : queryMany || undefined;
     this.mutationCreate =
-      mutationCreate === true ? `${name}Create` : mutationCreate || undefined;
+      mutationCreate === true ? `create${name}` : mutationCreate || undefined;
     this.mutationUpdate =
-      mutationUpdate === true ? `${name}Update` : mutationUpdate || undefined;
+      mutationUpdate === true ? `update${name}` : mutationUpdate || undefined;
     this.mutationDelete =
-      mutationDelete === true ? `${name}Delete` : mutationDelete || undefined;
+      mutationDelete === true ? `delete${name}` : mutationDelete || undefined;
     this.limitDefault = limitDefault;
     this.limitMax = limitMax;
     this.defaultDocs = defaultDocs;
 
     if (defaultId) {
-      this.field("id", Types.ID);
+      this.field("id", Types.ID.NonNull);
     }
   }
 
