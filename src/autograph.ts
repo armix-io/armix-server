@@ -5,6 +5,7 @@ import {
   NodeRootQuery,
   NodeResolver,
   NodeResolverOptions,
+  NodeRootResolver,
 } from "./graph";
 import { Resolver } from "./types/resolver";
 import { Adapter } from "./types/adapter";
@@ -84,11 +85,7 @@ export class Autograph {
 
     this.resolvers = {
       ...rootResolvers,
-      Node: {
-        __resolveType() {
-          return null;
-        },
-      },
+      Node: NodeRootResolver,
       Query: {
         ...queryResolvers,
         ...(wrapper

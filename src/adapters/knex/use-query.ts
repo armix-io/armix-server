@@ -8,6 +8,7 @@ import { AutographError } from "../../errors";
 
 export type Options = {
   tableNames?: Map<string, string>;
+  uuidField?: string;
 };
 
 const FILTER_OPERATOR_MAP = new Map([
@@ -23,7 +24,9 @@ export interface UseQuery {
   (
     query: GraphQueryTransport,
     options?: {
+      // position is stored id for cursor to start FROM
       position?: number;
+      // provided from model onQuery/One/Many hook, if given
       queryModifier?: QueryModifier<QueryTransport>;
     }
   ): Promise<{
@@ -33,8 +36,12 @@ export interface UseQuery {
   }>;
 }
 
-export const getUseQuery = (knex: Knex, options: Options) => {
-  const tableNames = options.tableNames ?? new Map<string, string>();
+export const createUseQuery = (knex: Knex, options: Options) => {
+  const {
+    tableNames = new Map<string, string>(),
+    uuidField = "uuid",
+  } = options;
+
   const knexQueryExecutor = new KnexQueryExecutor(knex);
 
   const useQuery: UseQuery = async (
@@ -78,10 +85,13 @@ export const getUseQuery = (knex: Knex, options: Options) => {
      * graphQuery with id
      */
     if (graphQuery.id) {
-      const { id } = graphQuery;
+      const { id, internal = false } = graphQuery;
 
       ops.push(op((query) => query.select(`${table}.*`), "select"));
-      ops.push(op((query) => query.where(`${table}.id`, "=", id), "where"));
+      const idField = internal ? "id" : uuidField;
+      ops.push(
+        op((query) => query.where(`${table}.${idField}`, "=", id), "where")
+      );
 
       useQueryResolver(queryMessage);
       const items = await knexQueryExecutor.execute(queryMessage);

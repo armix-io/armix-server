@@ -5,7 +5,7 @@ import { Context } from "../../types/context";
 import { Info } from "../../types/info";
 import { AutographError } from "../../errors";
 
-export const useGetOne = (model: ModelAny, adapter: Adapter) => async (
+export const createQueryOne = (model: ModelAny, adapter: Adapter) => async (
   id: string,
   context: Context,
   info: Info

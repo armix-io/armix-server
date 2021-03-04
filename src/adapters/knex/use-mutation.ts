@@ -4,14 +4,19 @@ import { KnexMutationExecutor } from "./knex-mutation-executor";
 
 type Options = {
   tableNames?: Map<string, string>;
+  uuidField?: string;
 };
 
 export interface UseMutation {
   (mutation: GraphMutationTransport): Promise<number | undefined>;
 }
 
-export const getUseMutation = (knex: Knex, options: Options) => {
-  const tableNames = options.tableNames || new Map<string, string>();
+export const createUseMutation = (knex: Knex, options: Options) => {
+  const {
+    tableNames = new Map<string, string>(),
+    uuidField = "uuid",
+  } = options;
+
   const knexMutationExecutor = new KnexMutationExecutor(knex);
 
   const useMutation: UseMutation = async (
@@ -33,6 +38,7 @@ export const getUseMutation = (knex: Knex, options: Options) => {
       trx,
       from,
       id,
+      idField: uuidField,
       data,
     });
 

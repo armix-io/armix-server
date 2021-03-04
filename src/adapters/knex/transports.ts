@@ -18,6 +18,7 @@ export interface QueryTransport {
 export interface MutationTransport {
   from: string;
   id?: number;
+  idField?: string;
   data?: any;
   trx?: Knex.Transaction;
 }

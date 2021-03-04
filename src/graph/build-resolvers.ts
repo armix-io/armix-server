@@ -2,7 +2,6 @@ import { Graph } from "../types/graph";
 import { ModelAny } from "../model/model";
 import { Adapter } from "../types/adapter";
 import { getRootResolver } from "./resolvers-utils/resolver-root";
-import { getQueryOneResolver } from "./resolvers-utils/resolver-query-one";
 import { getQueryManyResolver } from "./resolvers-utils/resolver-query-many";
 import {
   getMutationCreateResolver,
@@ -21,7 +20,6 @@ export function buildResolvers(
   );
   const query = Object.assign(
     {},
-    getQueryOneResolver(model, adapter),
     getQueryManyResolver(model, adapter),
     ...model.resolvers["query"]
   );

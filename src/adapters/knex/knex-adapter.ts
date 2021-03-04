@@ -4,12 +4,14 @@ import { CursorStore } from "../../types/cursor";
 import { MemoryCursorStore } from "../../cursors";
 import { onQuery } from "./on-query";
 import { onMutation } from "./on-mutation";
-import { getUseQuery } from "./use-query";
-import { getUseMutation } from "./use-mutation";
+import { createUseQuery } from "./use-query";
+import { createUseMutation } from "./use-mutation";
 
 type Options = {
   tableNames?: Map<string, string>;
   cursorStore?: CursorStore;
+  // what column to map to if not an internal ID
+  uuidField?: string;
 };
 
 export class KnexAdapter implements Adapter {
@@ -17,12 +19,16 @@ export class KnexAdapter implements Adapter {
   onMutation: Adapter["onMutation"];
 
   constructor(knex: Knex, options: Options = {}) {
-    const { tableNames, cursorStore = new MemoryCursorStore() } = options;
+    const {
+      tableNames,
+      cursorStore = new MemoryCursorStore(),
+      uuidField,
+    } = options;
 
-    const useQuery = getUseQuery(knex, { tableNames });
+    const useQuery = createUseQuery(knex, { tableNames, uuidField });
     this.onQuery = onQuery({ useQuery, cursorStore });
 
-    const useMutation = getUseMutation(knex, { tableNames });
+    const useMutation = createUseMutation(knex, { tableNames, uuidField });
     this.onMutation = onMutation({ useQuery, useMutation });
   }
 }

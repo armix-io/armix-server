@@ -4,6 +4,7 @@ export * from "./context";
 export * from "./cursor";
 export * from "./graph";
 export * from "./hooks";
+export * from "./info";
 export * from "./resolver";
 export * from "./scalars";
 export * from "./sources";

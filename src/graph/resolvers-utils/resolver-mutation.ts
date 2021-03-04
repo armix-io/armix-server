@@ -3,7 +3,7 @@ import { Resolver } from "../../types/resolver";
 import { Adapter } from "../../types/adapter";
 import { MutationTransport } from "../../types/transports";
 import { AutographError } from "../../errors";
-import { useGetOne } from "./use-get-one";
+import { createQueryOne } from "./create-query-one";
 
 export type Operation = "create" | "update" | "delete";
 
@@ -14,7 +14,7 @@ export function getMutationResolver(
   adapter: Adapter,
   operation: Operation
 ) {
-  const getOne = useGetOne(model, adapter);
+  const getOne = createQueryOne(model, adapter);
 
   return async (...resolverArgs: Parameters<Resolver<undefined, Args>>) => {
     const { name, fields, hooks } = model;

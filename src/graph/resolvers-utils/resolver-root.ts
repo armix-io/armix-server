@@ -26,6 +26,7 @@ export function getRootResolver(model: ModelAny, adapter: Adapter) {
 
       const result = await get.resolver(...resolverArgs);
 
+      // TODO: handle array of IDs for onQuery resolution
       // pass-through complete objects/arrays that don't need resolution
       if (result && typeof result === "object") return result;
 
@@ -36,9 +37,11 @@ export function getRootResolver(model: ModelAny, adapter: Adapter) {
         const {
           items: [item],
         } = await adapter.onQuery({
+          context,
           name,
           id,
-          context,
+          // TODO: add ids field to suit array of IDs use case if type "object"
+          internal: true,
         });
 
         if (!item && type.get.isNonNull) {

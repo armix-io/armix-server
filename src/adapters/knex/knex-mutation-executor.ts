@@ -10,7 +10,7 @@ export class KnexMutationExecutor {
   }
 
   async execute(mutation: MutationTransport) {
-    const { trx, from, id, data } = mutation;
+    const { trx, from, id, idField = "id", data } = mutation;
 
     const exec = this.knex(from);
 
@@ -21,7 +21,7 @@ export class KnexMutationExecutor {
      * CREATE
      */
     if (data && !id) {
-      const [id] = await exec.insert(data).returning("id");
+      const [id] = await exec.insert(data).returning(idField);
       return id as number;
     }
 
@@ -29,7 +29,10 @@ export class KnexMutationExecutor {
      * UPDATE
      */
     if (data && id) {
-      await exec.where({ id }).update(data).returning("id");
+      await exec
+        .where({ [idField]: id })
+        .update(data)
+        .returning(idField);
       return id as number;
     }
 
@@ -37,7 +40,7 @@ export class KnexMutationExecutor {
      * DELETE
      */
     if (!data && id) {
-      await exec.where({ id }).delete();
+      await exec.where({ [idField]: id }).delete();
       return;
     }
 
