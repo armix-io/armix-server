@@ -1,10 +1,38 @@
 import { ModelAny } from "../../model/model";
-import { Resolver } from "../../types/resolver";
-import { Adapter } from "../../types/adapter";
+import { Resolver, Adapter, Sources, Context, Info } from "../../types";
 import { AutographError } from "../../errors";
 
-export function getRootResolver(model: ModelAny, adapter: Adapter) {
+type Options = {
+  getNodeIdFn: <
+    T extends string,
+    S extends T extends keyof Sources ? Sources[T] : any
+  >(
+    type: T,
+    source: S,
+    context: Context,
+    info: Info
+  ) => string | null;
+};
+
+export { Options as RootResolverOptions };
+
+export function getRootResolver(
+  model: ModelAny,
+  adapter: Adapter,
+  options: Options
+) {
+  const { getNodeIdFn } = options;
+
   const acc: Record<string, Resolver> = {};
+
+  // add custom id resolver
+  acc["id"] = async (...resolverArgs) => {
+    const [source, , ...meta] = resolverArgs;
+    const id = getNodeIdFn(model.name, source, ...meta);
+    if (!id) throw new AutographError("UNRESOLVED_NODE_ID");
+    return id;
+  };
+
   Object.values(model.fields).forEach((field) => {
     const { get } = field;
     if (!get) return;

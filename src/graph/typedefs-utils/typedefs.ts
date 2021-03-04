@@ -41,6 +41,7 @@ function mapFilters(filters: ModelAny["filters"]) {
 export function getRootType({ name, fields }: ModelAny) {
   return `
     type ${name} implements Node {
+      id: ID!
       ${mapFields(
         fields,
         ({ type, get }) => get && type.get,

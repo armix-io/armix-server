@@ -14,6 +14,7 @@ import { Options, OptionsCallback } from "./field-options";
 import { Filter, FilterResolver } from "./filter";
 import { useMappers } from "./use-mappers";
 import { useDefaultFilters } from "./use-default-filters";
+import { AutographError } from "../errors";
 
 type ResolveGet<T extends Type | { get: Type; set: Scalar }> = T extends {
   get: Type;
@@ -72,7 +73,7 @@ export class Model<
       onFieldGet?: ModelHooks<Source>["onGet"];
       onFieldSet?: ModelHooks<Source>["onSet"];
       onFieldUse?: ModelHooks<Source>["onUse"];
-      defaultId?: boolean;
+      defaultIdFilters?: boolean;
     } & Partial<
       Pick<Model<any, any>, "limitDefault" | "limitMax" | "defaultDocs">
     >
@@ -92,7 +93,7 @@ export class Model<
       limitDefault = 20,
       limitMax = 50,
       defaultDocs = true,
-      defaultId = true,
+      defaultIdFilters = true,
       onQuery,
       onQueryOne,
       onQueryMany,
@@ -138,8 +139,18 @@ export class Model<
     this.limitMax = limitMax;
     this.defaultDocs = defaultDocs;
 
-    if (defaultId) {
-      this.field("id", Types.ID.NonNull);
+    // add default filters for id field
+    if (defaultIdFilters) {
+      useDefaultFilters(
+        {
+          key: "id",
+          name: "id",
+          type: { get: Types.ID.NonNull, set: Types.ID.NonNull },
+          filterTarget: "id",
+          hooks: {},
+        },
+        this.filters
+      );
     }
   }
 
@@ -150,6 +161,9 @@ export class Model<
       | Options<Source, ResolveSet<T>>
       | OptionsCallback<Source, ResolveGet<T>, ResolveSet<T>>
   ) {
+    // prevent "id" field being defined, considering it's so special
+    if (name === "id") throw new AutographError("ID_FIELD_RESERVED");
+
     const mappers = useMappers<Source, ResolveGet<T>, ResolveSet<T>>();
 
     const {

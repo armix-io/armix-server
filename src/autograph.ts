@@ -1,5 +1,5 @@
 import omit from "lodash.omit";
-import { Node } from "./types/graph";
+import { Node, Sources, Resolver, Adapter } from "./types";
 import {
   NodeType,
   NodeRootQuery,
@@ -7,11 +7,9 @@ import {
   NodeResolverOptions,
   NodeRootResolver,
 } from "./graph";
-import { Resolver } from "./types/resolver";
-import { Adapter } from "./types/adapter";
-import { ModelAny } from "./model/model";
+import { ModelAny } from "./model";
 import { buildTypeDefs } from "./graph/build-typedefs";
-import { buildResolvers } from "./graph/build-resolvers";
+import { buildResolvers, BuildResolversOptions } from "./graph/build-resolvers";
 import {
   mergeTypeDefs,
   mergeResolvers,
@@ -25,8 +23,11 @@ type Options = {
   resolvers?: Partial<Record<Node, Record<string, any>>>;
   wrapper?: (resolver: Resolver) => Resolver;
   wrapperExcludes?: Partial<Record<Exclude<Node, "root">, string[]>>;
+  getNodeIdFn: BuildResolversOptions["getNodeIdFn"];
   getNodeInfoFn: NodeResolverOptions["getNodeInfoFn"];
 };
+
+export { Options as AutographOptions };
 
 export class Autograph {
   typeDefs: string;
@@ -40,6 +41,7 @@ export class Autograph {
       resolvers,
       wrapper,
       wrapperExcludes,
+      getNodeIdFn,
       getNodeInfoFn,
     } = options;
 
@@ -51,7 +53,7 @@ export class Autograph {
 
     const modelsTypeDefs = models.map((model) => buildTypeDefs(model));
     const modelsResolvers = models.map((model) =>
-      buildResolvers(model, adapter)
+      buildResolvers(model, adapter, { getNodeIdFn })
     );
 
     this.typeDefs = `

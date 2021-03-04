@@ -113,7 +113,9 @@ export const createUseQuery = (knex: Knex, options: Options) => {
      */
     const { filters: queryFilters = [] } = graphQuery;
     queryFilters.forEach((filter) => {
-      const { target, operator: _operator, value } = filter;
+      const { target: filterTarget, operator: _operator, value } = filter;
+      // if internal filter is targetting "id", rewrite to target uuid instead
+      const target = filterTarget === "id" ? uuidField : filterTarget;
       const operator = FILTER_OPERATOR_MAP.get(_operator) || _operator;
       ops.push(
         op(

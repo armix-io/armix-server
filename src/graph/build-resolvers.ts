@@ -1,7 +1,10 @@
 import { Graph } from "../types/graph";
 import { ModelAny } from "../model/model";
 import { Adapter } from "../types/adapter";
-import { getRootResolver } from "./resolvers-utils/resolver-root";
+import {
+  getRootResolver,
+  RootResolverOptions,
+} from "./resolvers-utils/resolver-root";
 import { getQueryManyResolver } from "./resolvers-utils/resolver-query-many";
 import {
   getMutationCreateResolver,
@@ -9,13 +12,20 @@ import {
   getMutationDeleteResolver,
 } from "./resolvers-utils/resolver-mutation";
 
+type Options = RootResolverOptions;
+
+export { Options as BuildResolversOptions };
+
 export function buildResolvers(
   model: ModelAny,
-  adapter: Adapter
+  adapter: Adapter,
+  options: Options
 ): Graph["resolvers"] {
+  const { getNodeIdFn } = options;
+
   const root = Object.assign(
     {},
-    getRootResolver(model, adapter),
+    getRootResolver(model, adapter, { getNodeIdFn }),
     ...model.resolvers["root"]
   );
   const query = Object.assign(

@@ -50,6 +50,7 @@ export function getQueryManyResolver(model: ModelAny, adapter: Adapter) {
       };
     }
 
+    // internal filters
     if (args.filters) {
       Object.entries(args.filters).forEach(([filterName, value]) => {
         const filter = model.filters[filterName];
@@ -58,6 +59,7 @@ export function getQueryManyResolver(model: ModelAny, adapter: Adapter) {
       });
     }
 
+    // adapter filters
     const queryHook = hooks.onQueryMany || hooks.onQuery;
     const queryModifier: QueryModifier = (query) => {
       if (args.filters)
