@@ -2,6 +2,7 @@ import { ModelAny } from "../../model/model";
 import { Resolver } from "../../types/resolver";
 import { Adapter, QueryModifier } from "../../types/adapter";
 import { QueryTransport } from "../../types/transports";
+import { AutographError } from "../../errors";
 
 type Args = {
   cursor?: string;
@@ -37,11 +38,11 @@ export function getQueryManyResolver(model: ModelAny, adapter: Adapter) {
         /^([\w\d]+)_(asc|desc)$/
       ) || []) as (string | undefined)[];
       if (!orderFieldName || !orderDirection)
-        throw new Error("INVALID_QUERY_ORDER");
+        throw new AutographError("INVALID_QUERY_ORDER");
 
       const field = model.fields[orderFieldName];
       if (!(field && field.orderTarget))
-        throw new Error("INVALID_QUERY_ORDER_FIELD");
+        throw new AutographError("INVALID_QUERY_ORDER_FIELD");
 
       query.order = {
         target: field.orderTarget,

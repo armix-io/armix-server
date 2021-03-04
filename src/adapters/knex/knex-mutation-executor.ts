@@ -1,5 +1,6 @@
 import Knex from "knex";
 import { MutationTransport } from "./transports";
+import { AutographError } from "../../errors";
 
 export class KnexMutationExecutor {
   knex: Knex;
@@ -40,6 +41,6 @@ export class KnexMutationExecutor {
       return;
     }
 
-    throw new Error("USE_MUTATION_INVALID_QUERY");
+    throw new AutographError("USE_MUTATION_INVALID_QUERY");
   }
 }

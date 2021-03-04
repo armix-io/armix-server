@@ -4,6 +4,7 @@ import { QueryTransport as GraphQueryTransport } from "../../types/transports";
 import { QueryModifier } from "../../types/adapter";
 import { QueryTransport, op } from "./transports";
 import { KnexQueryExecutor } from "./knex-query-executor";
+import { AutographError } from "../../errors";
 
 export type Options = {
   tableNames?: Map<string, string>;
@@ -52,7 +53,8 @@ export const getUseQuery = (knex: Knex, options: Options) => {
      * [endpoint]
      * graphQuery with cursor --- not supported
      */
-    if (graphQuery.cursor) throw new Error("USE_QUERY_CURSOR_UNSUPPORTED");
+    if (graphQuery.cursor)
+      throw new AutographError("USE_QUERY_CURSOR_UNSUPPORTED");
 
     /**
      * [knex]
@@ -177,7 +179,8 @@ export const getUseQuery = (knex: Knex, options: Options) => {
      * limit
      */
     const { limit: queryLimit } = graphQuery;
-    if (queryLimit === undefined) throw new Error("USE_QUERY_LIMIT_REQUIRED");
+    if (queryLimit === undefined)
+      throw new AutographError("USE_QUERY_LIMIT_REQUIRED");
     const limit = queryLimit + 1;
     ops.push(op((query) => query.limit(limit), "limit"));
 

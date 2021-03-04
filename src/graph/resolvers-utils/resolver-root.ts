@@ -1,6 +1,7 @@
 import { ModelAny } from "../../model/model";
 import { Resolver } from "../../types/resolver";
 import { Adapter } from "../../types/adapter";
+import { AutographError } from "../../errors";
 
 export function getRootResolver(model: ModelAny, adapter: Adapter) {
   const acc: Record<string, Resolver> = {};
@@ -41,7 +42,7 @@ export function getRootResolver(model: ModelAny, adapter: Adapter) {
         });
 
         if (!item && type.get.isNonNull) {
-          throw new Error("NOT_FOUND");
+          throw new AutographError("NOT_FOUND");
         }
 
         return item;

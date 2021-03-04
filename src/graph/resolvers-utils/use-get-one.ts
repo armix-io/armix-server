@@ -3,6 +3,7 @@ import { Adapter, QueryModifier } from "../../types/adapter";
 import { QueryTransport } from "../../types/transports";
 import { Context } from "../../types/context";
 import { Info } from "../../types/info";
+import { AutographError } from "../../errors";
 
 export const useGetOne = (model: ModelAny, adapter: Adapter) => async (
   id: string,
@@ -28,7 +29,7 @@ export const useGetOne = (model: ModelAny, adapter: Adapter) => async (
     items: (Record<string, any> | undefined)[];
   };
 
-  if (!item) throw new Error("NOT_FOUND");
+  if (!item) throw new AutographError("NOT_FOUND");
 
   return item;
 };

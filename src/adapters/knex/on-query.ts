@@ -2,6 +2,7 @@ import { Adapter } from "../../types/adapter";
 import { QueryTransport as KnexQueryTransport } from "./transports";
 import { CursorStore } from "../../types/cursor";
 import { UseQuery } from "./use-query";
+import { AutographError } from "../../errors";
 
 type Options = {
   useQuery: UseQuery;
@@ -25,7 +26,7 @@ export const onQuery = ({
     const cursorId = `${name}:${cursorArg}`;
     const cursor = await cursorStore.get(cursorId);
     if (!cursor) {
-      throw new Error("QUERY_CURSOR_INVALID");
+      throw new AutographError("QUERY_CURSOR_INVALID");
     }
 
     // overwrite cursor query context (to prevent stale trx)
