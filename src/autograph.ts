@@ -73,6 +73,7 @@ export class Autograph {
       ...mergeResolvers(modelsResolvers),
     };
     const queryResolvers = {
+      ...({ node } as Record<string, Resolver>),
       ...(resolvers?.query || {}),
       ...mergeResolvers(modelsResolvers, "query"),
     };
@@ -89,7 +90,6 @@ export class Autograph {
         },
       },
       Query: {
-        node,
         ...queryResolvers,
         ...(wrapper
           ? wrapResolvers(
