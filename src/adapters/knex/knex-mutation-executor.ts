@@ -10,19 +10,22 @@ export class KnexMutationExecutor {
   }
 
   async execute(mutation: MutationTransport) {
-    const { trx, from, id, idField = "id", data } = mutation;
+    const { trx, from, id, idColumn = "id", data } = mutation;
 
     const exec = this.knex(from);
 
-    // console.log("[debug.knex.mutation] has trx?", !!trx);
-    if (trx) exec.transacting(trx);
+    if (trx) {
+      exec.transacting(trx);
+    } else {
+      console.warn(`[autograph.knex.mutation] no trx, not transactional!`);
+    }
 
     /**
      * CREATE
      */
     if (data && !id) {
-      const [id] = await exec.insert(data).returning(idField);
-      return id as number;
+      const [id] = await exec.insert(data).returning(idColumn);
+      return id;
     }
 
     /**
@@ -30,17 +33,17 @@ export class KnexMutationExecutor {
      */
     if (data && id) {
       await exec
-        .where({ [idField]: id })
+        .where({ [idColumn]: id })
         .update(data)
-        .returning(idField);
-      return id as number;
+        .returning(idColumn);
+      return id;
     }
 
     /**
      * DELETE
      */
     if (!data && id) {
-      await exec.where({ [idField]: id }).delete();
+      await exec.where({ [idColumn]: id }).delete();
       return;
     }
 

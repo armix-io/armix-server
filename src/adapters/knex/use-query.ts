@@ -8,7 +8,7 @@ import { AutographError } from "../../errors";
 
 export type Options = {
   tableNames?: Map<string, string>;
-  uuidField?: string;
+  idColumn?: string;
 };
 
 const FILTER_OPERATOR_MAP = new Map([
@@ -37,10 +37,7 @@ export interface UseQuery {
 }
 
 export const createUseQuery = (knex: Knex, options: Options) => {
-  const {
-    tableNames = new Map<string, string>(),
-    uuidField = "uuid",
-  } = options;
+  const { tableNames = new Map<string, string>(), idColumn = "uuid" } = options;
 
   const knexQueryExecutor = new KnexQueryExecutor(knex);
 
@@ -72,13 +69,17 @@ export const createUseQuery = (knex: Knex, options: Options) => {
     const table = tableNames.get(queryName) || queryName;
 
     // @ts-ignore
-    const trx: Knex.Transaction = graphQuery.context?.trx;
+    const trx: Knex.Transaction = graphQuery.context.trx;
 
     const ops: QueryTransport["ops"] = [];
     const queryMessage: QueryTransport = { table, ops };
 
     ops.push(op((query) => query.from(table), "from"));
-    if (trx) ops.push(op((query) => query.transacting(trx), "trx"));
+    if (trx) {
+      ops.push(op((query) => query.transacting(trx), "trx"));
+    } else {
+      console.warn(`[autograph.knex.query] no trx, not transactional!`);
+    }
 
     /**
      * [endpoint]
@@ -88,9 +89,9 @@ export const createUseQuery = (knex: Knex, options: Options) => {
       const { id, internal = false } = graphQuery;
 
       ops.push(op((query) => query.select(`${table}.*`), "select"));
-      const idField = internal ? "id" : uuidField;
+      const field = internal ? "id" : idColumn;
       ops.push(
-        op((query) => query.where(`${table}.${idField}`, "=", id), "where")
+        op((query) => query.where(`${table}.${field}`, "=", id), "where")
       );
 
       useQueryResolver(queryMessage);
@@ -115,7 +116,7 @@ export const createUseQuery = (knex: Knex, options: Options) => {
     queryFilters.forEach((filter) => {
       const { target: filterTarget, operator: _operator, value } = filter;
       // if internal filter is targetting "id", rewrite to target uuid instead
-      const target = filterTarget === "id" ? uuidField : filterTarget;
+      const target = filterTarget === "id" ? idColumn : filterTarget;
       const operator = FILTER_OPERATOR_MAP.get(_operator) || _operator;
       ops.push(
         op(

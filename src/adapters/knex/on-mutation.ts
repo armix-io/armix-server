@@ -18,9 +18,10 @@ export const onMutation = ({
     const {
       items: [item],
     } = await useQuery({
-      name: mutation.name,
       context: mutation.context,
-      id: id.toString(),
+      info: mutation.info,
+      name: mutation.name,
+      id,
     });
     return item;
   }

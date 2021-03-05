@@ -15,10 +15,11 @@ export interface QueryTransport {
   ops: Op[];
 }
 
+// TODO: convert to ops, like QueryTransport
 export interface MutationTransport {
   from: string;
-  id?: number;
-  idField?: string;
+  id?: string;
+  idColumn?: string;
   data?: any;
   trx?: Knex.Transaction;
 }

@@ -24,11 +24,17 @@ export function getQueryManyResolver(model: ModelAny, adapter: Adapter) {
     const [, args, context, info] = resolverArgs;
 
     if (args.cursor) {
-      return await adapter.onQuery({ context, name, cursor: args.cursor });
+      return await adapter.onQuery({
+        context,
+        info,
+        name,
+        cursor: args.cursor,
+      });
     }
 
     const query: QueryTransport = {
       context,
+      info,
       name,
       limit: Math.min(args.limit || model.limitDefault, model.limitMax),
     };

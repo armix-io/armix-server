@@ -23,6 +23,7 @@ type Options = {
   resolvers?: Partial<Record<Node, Record<string, any>>>;
   wrapper?: (resolver: Resolver) => Resolver;
   wrapperExcludes?: Partial<Record<Exclude<Node, "root">, string[]>>;
+  newIdsFn: BuildResolversOptions["newIdsFn"];
   getNodeIdFn: BuildResolversOptions["getNodeIdFn"];
   getNodeInfoFn: NodeResolverOptions["getNodeInfoFn"];
 };
@@ -41,6 +42,7 @@ export class Autograph {
       resolvers,
       wrapper,
       wrapperExcludes,
+      newIdsFn,
       getNodeIdFn,
       getNodeInfoFn,
     } = options;
@@ -53,7 +55,7 @@ export class Autograph {
 
     const modelsTypeDefs = models.map((model) => buildTypeDefs(model));
     const modelsResolvers = models.map((model) =>
-      buildResolvers(model, adapter, { getNodeIdFn })
+      buildResolvers(model, adapter, { newIdsFn, getNodeIdFn })
     );
 
     this.typeDefs = `

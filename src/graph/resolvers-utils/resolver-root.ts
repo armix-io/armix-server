@@ -66,6 +66,7 @@ export function getRootResolver(
           items: [item],
         } = await adapter.onQuery({
           context,
+          info,
           name,
           id,
           // TODO: add ids field to suit array of IDs use case if type "object"

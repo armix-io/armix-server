@@ -4,41 +4,37 @@ import { KnexMutationExecutor } from "./knex-mutation-executor";
 
 type Options = {
   tableNames?: Map<string, string>;
-  uuidField?: string;
+  idColumn?: string;
 };
 
 export interface UseMutation {
-  (mutation: GraphMutationTransport): Promise<number | undefined>;
+  (mutation: GraphMutationTransport): Promise<string | undefined>;
 }
 
 export const createUseMutation = (knex: Knex, options: Options) => {
-  const {
-    tableNames = new Map<string, string>(),
-    uuidField = "uuid",
-  } = options;
+  const { tableNames = new Map<string, string>(), idColumn = "uuid" } = options;
 
   const knexMutationExecutor = new KnexMutationExecutor(knex);
 
   const useMutation: UseMutation = async (
     graphMutation
   ): ReturnType<UseMutation> => {
-    const { name: queryName } = graphMutation;
-    const from = tableNames.get(queryName) || queryName;
+    const { name, id, newId, data } = graphMutation;
+    const from = tableNames.get(name) || name;
 
     // @ts-ignore
-    const trx: Knex.Transaction = graphMutation.context?.trx;
+    const trx: Knex.Transaction = graphMutation.context.trx;
 
-    const { id: queryId } = graphMutation;
-    const id = (queryId && parseInt(queryId)) || undefined;
-
-    const { data: queryData } = graphMutation;
-    const data = queryData;
+    // if a newId is given (create operation) add to data object
+    if (data && newId) {
+      data[idColumn] = newId;
+    }
 
     const nextId = await knexMutationExecutor.execute({
       trx,
       from,
       id,
-      idField: uuidField,
+      idColumn,
       data,
     });
 

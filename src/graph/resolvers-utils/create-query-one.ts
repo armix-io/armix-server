@@ -14,6 +14,7 @@ export const createQueryOne = (model: ModelAny, adapter: Adapter) => async (
 
   const query: QueryTransport = {
     context,
+    info,
     name,
     id,
   };

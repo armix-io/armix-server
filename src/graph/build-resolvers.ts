@@ -10,9 +10,10 @@ import {
   getMutationCreateResolver,
   getMutationUpdateResolver,
   getMutationDeleteResolver,
+  MutationResolverOptions,
 } from "./resolvers-utils/resolver-mutation";
 
-type Options = RootResolverOptions;
+type Options = RootResolverOptions & MutationResolverOptions;
 
 export { Options as BuildResolversOptions };
 
@@ -21,7 +22,7 @@ export function buildResolvers(
   adapter: Adapter,
   options: Options
 ): Graph["resolvers"] {
-  const { getNodeIdFn } = options;
+  const { newIdsFn, getNodeIdFn } = options;
 
   const root = Object.assign(
     {},
@@ -35,9 +36,9 @@ export function buildResolvers(
   );
   const mutation = Object.assign(
     {},
-    getMutationCreateResolver(model, adapter),
-    getMutationUpdateResolver(model, adapter),
-    getMutationDeleteResolver(model, adapter),
+    getMutationCreateResolver(model, adapter, { newIdsFn }),
+    getMutationUpdateResolver(model, adapter, { newIdsFn }),
+    getMutationDeleteResolver(model, adapter, { newIdsFn }),
     ...model.resolvers["mutation"]
   );
 

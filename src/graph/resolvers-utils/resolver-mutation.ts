@@ -1,18 +1,35 @@
-import { ModelAny } from "../../model/model";
-import { Resolver } from "../../types/resolver";
-import { Adapter } from "../../types/adapter";
-import { MutationTransport } from "../../types/transports";
+import { ModelAny } from "../../model";
+import {
+  Resolver,
+  Adapter,
+  MutationTransport,
+  Context,
+  Info,
+} from "../../types";
+import { MaybePromise } from "../../types/utils";
 import { AutographError } from "../../errors";
 import { createQueryOne } from "./create-query-one";
 
 export type Operation = "create" | "update" | "delete";
+
+type Options = {
+  newIdsFn: (
+    type: string,
+    n: number,
+    context: Context,
+    info: Info
+  ) => MaybePromise<string[]>;
+};
+
+export { Options as MutationResolverOptions };
 
 type Args = { ids: string[]; data: Record<string, any>[] };
 
 export function getMutationResolver(
   model: ModelAny,
   adapter: Adapter,
-  operation: Operation
+  operation: Operation,
+  options: Options
 ) {
   const getOne = createQueryOne(model, adapter);
 
@@ -23,8 +40,9 @@ export function getMutationResolver(
     const getItem = (id: string) => getOne(id, context, info);
 
     const mutation: MutationTransport = {
-      name,
       context,
+      info,
+      name,
     };
 
     if (operation === "delete") {
@@ -270,20 +288,40 @@ export function getMutationResolver(
       })
     );
 
+    const newIds: string[] = [];
+    if (operation === "create") {
+      const n = dataResolvers.length;
+      const ids = await options.newIdsFn(model.name, n, context, info);
+      newIds.push(...ids);
+      if (ids.length !== n)
+        throw new AutographError(
+          "MUTATION_ERROR",
+          `(${operation}) expected ${n} ids, got ${ids.length}`
+        );
+    }
+
     return await Promise.all(
       dataResolvers.map(async (dataResolver) => {
         const { id, data, callback } = dataResolver;
+
+        const newId = newIds.pop();
+        if (!newId && operation === "create")
+          throw new AutographError(
+            "MUTATION_ERROR",
+            `(${operation}) expected newId, got ${newId}`
+          );
 
         const source = await adapter.onMutation({
           ...mutation,
           id,
           data,
+          newId,
         });
 
         if (!source)
           throw new AutographError(
             "MUTATION_ERROR",
-            `(${operation}) expected result, got undefined`
+            `(${operation}) expected source, got undefined`
           );
 
         await callback(source);
@@ -296,33 +334,36 @@ export function getMutationResolver(
 
 export const getMutationCreateResolver = (
   model: ModelAny,
-  adapter: Adapter
+  adapter: Adapter,
+  options: Options
 ) => {
   const { mutationCreate } = model;
   if (!mutationCreate) return {};
   return {
-    [mutationCreate]: getMutationResolver(model, adapter, "create"),
+    [mutationCreate]: getMutationResolver(model, adapter, "create", options),
   };
 };
 
 export const getMutationUpdateResolver = (
   model: ModelAny,
-  adapter: Adapter
+  adapter: Adapter,
+  options: Options
 ) => {
   const { mutationUpdate } = model;
   if (!mutationUpdate) return {};
   return {
-    [mutationUpdate]: getMutationResolver(model, adapter, "update"),
+    [mutationUpdate]: getMutationResolver(model, adapter, "update", options),
   };
 };
 
 export const getMutationDeleteResolver = (
   model: ModelAny,
-  adapter: Adapter
+  adapter: Adapter,
+  options: Options
 ) => {
   const { mutationDelete } = model;
   if (!mutationDelete) return {};
   return {
-    [mutationDelete]: getMutationResolver(model, adapter, "delete"),
+    [mutationDelete]: getMutationResolver(model, adapter, "delete", options),
   };
 };

@@ -11,7 +11,7 @@ type Options = {
   tableNames?: Map<string, string>;
   cursorStore?: CursorStore;
   // what column to map to if not an internal ID
-  uuidField?: string;
+  idColumn?: string;
 };
 
 export class KnexAdapter implements Adapter {
@@ -22,13 +22,13 @@ export class KnexAdapter implements Adapter {
     const {
       tableNames,
       cursorStore = new MemoryCursorStore(),
-      uuidField,
+      idColumn,
     } = options;
 
-    const useQuery = createUseQuery(knex, { tableNames, uuidField });
+    const useQuery = createUseQuery(knex, { tableNames, idColumn });
     this.onQuery = onQuery({ useQuery, cursorStore });
 
-    const useMutation = createUseMutation(knex, { tableNames, uuidField });
+    const useMutation = createUseMutation(knex, { tableNames, idColumn });
     this.onMutation = onMutation({ useQuery, useMutation });
   }
 }
