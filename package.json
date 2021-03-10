@@ -5,9 +5,6 @@
   "description": "Generate CRUD TypeDefs and Resolvers for GraphQL APIs.",
   "repository": "https://github.com/armix-io/autograph",
   "license": "MIT",
-  "engines": {
-    "node": ">=14"
-  },
   "type": "module",
   "main": "index.js",
   "types": "index.d.ts",
